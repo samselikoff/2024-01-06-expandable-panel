@@ -1,41 +1,88 @@
-import type { MetaFunction } from "@remix-run/node";
+import { AnimatePresence, MotionConfig, motion } from "framer-motion";
+import { useState } from "react";
+import useMeasure from "react-use-measure";
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
+const transition = { type: "ease", ease: "easeInOut", duration: 0.5 };
 
 export default function Index() {
+  const [isShowingMore, setIsShowingMore] = useState(false);
+  const [ref, bounds] = useMeasure();
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
+    <MotionConfig transition={transition}>
+      <div className="max-w-md mx-auto mt-20 space-y-8">
+        <p>Content above</p>
+
+        <div>
+          <button
+            className="px-3 py-1.5 bg-blue-500 text-white font-medium rounded"
+            onClick={() => setIsShowingMore(!isShowingMore)}
           >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
+            Toggle
+          </button>
+
+          <motion.div
+            animate={{ height: bounds.height > 0 ? bounds.height : undefined }}
+            className="mt-8"
           >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
-    </div>
+            <div ref={ref} className="relative">
+              <AnimatePresence initial={false} mode="popLayout">
+                {isShowingMore ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+                      transition: {
+                        ...transition,
+                        duration: transition.duration / 2,
+                        delay: transition.duration * (1 / 2),
+                      },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      transition: {
+                        ...transition,
+                        duration: transition.duration / 2,
+                      },
+                    }}
+                    key="short"
+                  >
+                    Long description. Lorem ipsum dolor sit, amet consectetur
+                    adipisicing elit. Aspernatur harum ipsam necessitatibus
+                    delectus fugit at, porro neque tempore exercitationem
+                    aliquam nulla totam est similique dicta recusandae natus
+                    minus optio quis!
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+
+                      transition: {
+                        ...transition,
+                        duration: transition.duration / 2,
+                        delay: transition.duration * (1 / 2),
+                      },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      transition: {
+                        ...transition,
+                        duration: transition.duration / 2,
+                      },
+                    }}
+                    key="long"
+                  >
+                    Short summary.
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </div>
+        <p>Content below</p>
+      </div>
+    </MotionConfig>
   );
 }
